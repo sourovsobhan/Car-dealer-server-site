@@ -24,6 +24,7 @@ async function run() {
     const servicesCollection = database.collection("services");
     const usersCollection = database.collection("users");
     const orderCollection = database.collection("orders");
+    const reviewCollection = database.collection("review");
     const OrderCountCollection = database.collection("ordersCount");
     console.log("database connect successfully");
 
@@ -85,18 +86,50 @@ async function run() {
     // post api
 
     app.post("/orders", async (req, res) => {
-      const orders = req.body;
+      const ordersCount = req.body;
       try {
-        console.log("hit from orders", orders);
-        console.log("hit the post api");
         res.send("post hitted");
-
-        const result = await OrderCountCollection.insertOne(orders);
+        const result = await OrderCountCollection.insertOne(req.body);
         console.log(result);
         res.json(result);
       } catch (error) {
         console.log(error);
       }
+    });
+    //post order
+    // app.post("/orders", async (req, res) => {
+    //   const order = await OrderCountCollection.insertOne(req.body);
+    //   res.send(order);
+    //   console.log(order);
+    // });
+
+    // order get api
+    //my order
+    app.get("/orders/:email", async (req, res) => {
+      const email = { email: req.params.email };
+      const myOrder = await OrderCountCollection.find(email).toArray();
+      res.send(myOrder);
+    });
+
+    //remove my order
+    app.delete("/orders/:id", async (req, res) => {
+      const query = { _id: ObjectId(req.params.id) };
+      const result = await OrderCountCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //  review
+    //addReview
+    app.post("/review", async (req, res) => {
+      console.log("hello", req.body);
+      const result = await reviewCollection.insertOne(req.body);
+      res.send(result);
+    });
+
+    //get all review
+    app.get("/review", async (req, res) => {
+      const review = await reviewCollection.find({}).toArray();
+      res.send(review);
     });
 
     app.put("/users", async (req, res) => {
